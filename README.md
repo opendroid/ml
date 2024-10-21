@@ -22,6 +22,15 @@ On Apple M3 MAX CPU and Apple Silicon Metal Performance Shaders (MPS) PyTorch AP
 | Torch ("mps") | t3 = t1 + t2 | 0.026 |
 
 
+## Installed packages
+After the virtual environment is created and activated, create the requirements.txt file.
+
+
+```shell
+pip3 freeze > requirements.txt
+
+```
+
 References:
 1. [Accelerated PyTorch training on Mac](https://developer.apple.com/metal/pytorch/)
 2. [PyTorch Tensors](https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html)
