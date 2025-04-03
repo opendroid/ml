@@ -1,7 +1,8 @@
 """This module tests various pipeline tasks available on Hugging Face.
 Note that the huggingface models are cached in $HOME/.cache/huggingface/hub
 
-The task parameters: https://huggingface.co/docs/transformers/main_classes/pipelines
+The task parameters:
+    https://huggingface.co/docs/transformers/main_classes/pipelines
 The models: https://huggingface.co/models
 
 """
