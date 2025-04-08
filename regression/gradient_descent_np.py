@@ -8,10 +8,13 @@ class GradientDescentNumpy:
     """
 
     def __init__(self, learning_rate=0.01,
-                 max_iter=1000, tolerance=1e-6):
+                 max_iter=1000,
+                 tolerance=1e-8,
+                 max_tolerance=1_000):
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.tolerance = tolerance
+        self.max_tolerance = max_tolerance
         self.dtype = np.float32
         self.params = None
         return
@@ -42,7 +45,6 @@ class GradientDescentNumpy:
         """
         start_time = time.perf_counter()
         m, n = X.shape
-        print(f"m: {m}, n: {n}")
         dtype = self.dtype
         X = X.astype(dtype)
         y = y.astype(dtype)
@@ -63,9 +65,8 @@ class GradientDescentNumpy:
             tolerance = np.linalg.norm(delta)
             if tolerance < self.tolerance:
                 break
-            elif tolerance > 1000:
-                dtype = self.dtype
-                print(f"Delta is too large, will not converge: {delta}")
+            elif tolerance > self.max_tolerance:
+                print(f"No convergence: {tolerance} {delta.reshape(1, -1)}")
                 break
             # Update parameters by subtracting delta,
             # which is equivalent to adding -delta (see note above)
