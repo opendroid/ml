@@ -23,7 +23,7 @@ class GradientDescentNumpy:
         """Calculate weitghts for linear regression model.
 
         Input:
-            X <= m x n matrix (m: features, n:training samples)
+            X <= m x n matrix (m: training samples, n:features)
             y <= m x 1 vector (targets)
 
         Initialize:
@@ -32,6 +32,7 @@ class GradientDescentNumpy:
 
         Preprocess:
             Add a column of 1s to X for the intercept term
+            Add a column of 1s to W as weight of intercept term
 
         Loop (for num_iters):
             predictions <= X ⋅ θ
@@ -47,20 +48,26 @@ class GradientDescentNumpy:
         m, n = X.shape
         dtype = self.dtype
         X = X.astype(dtype)
-        y = y.astype(dtype)
-        # Add a column of 1s to X for the intercept term
-        X_b = np.c_[np.ones((m, 1), dtype=dtype), X]
-        self.params = np.zeros((n + 1, 1), dtype=dtype)
+        y = np.asarray(y, dtype=self.dtype).ravel()  # Flattens y to (m,)
+        if y.shape[0] != m:
+            raise ValueError(f"y shape {y.shape} does not match X rows {m}")
+        print(f"X: {X.shape}, y: {y.shape}")
+        # Add a column of 1s to X for the intercept term, Shape: (m, n + 1)
+        X_b = np.c_[np.ones(m, dtype=dtype), X]
+        self.params = np.zeros(n + 1, dtype=dtype)  # Shape: (n + 1,)
         iter_count, tolerance = 0, dtype('inf')
         for _ in range(self.max_iter):
             # for performance use this instead of (Y_predictions - y)
+            # Predictions: X_b (m, n + 1) @ params (n + 1,) -> (m,)
             Y_predictions = X_b @ self.params
-            errors = y - Y_predictions
+            # Errors: both predictions and y are (m,), so result is (m,)
+            errors = Y_predictions - y
             # Correlation between features and errors
+            # Gradient: X_b.T (n + 1, m) @ errors (m,) -> (n + 1,)
             gradient = (1/m) * X_b.T @ errors
             # Note that actual delta is (sign is opposite)
             # (Y_predictions - y) * X_b * learning_rate
-            delta = self.learning_rate * gradient
+            delta = self.learning_rate * gradient  # Delta: scale gradient
             # Note that np.linalg.norm(delta) is same as np.linalg.norm(-delta)
             tolerance = np.linalg.norm(delta)
             if tolerance < self.tolerance:
@@ -70,7 +77,7 @@ class GradientDescentNumpy:
                 break
             # Update parameters by subtracting delta,
             # which is equivalent to adding -delta (see note above)
-            self.params += delta
+            self.params -= delta
             iter_count += 1
         time_taken = time.perf_counter() - start_time
 

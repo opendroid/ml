@@ -69,9 +69,9 @@ class GradientDescentTorch:
             if tolerance < self.tolerance:
                 break
             elif tolerance > 1000:
-                tolerance = dtype('inf')
-                print(
-                    f"Delta is too large, will not converge: {delta}")
+                tolerance = torch.tensor(
+                    float('inf'), dtype=dtype, device=device)
+                print(f"Will not converge: {delta}")
                 break
             # Update parameters by subtracting delta,
             # which is equivalent to adding -delta (see note above)
