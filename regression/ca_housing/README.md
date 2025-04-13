@@ -72,7 +72,7 @@ Observations on step 2 models:
 - Linear Regression, Lasso, Ridge are producing similar results.
 - Decision Tree trained on all the data is overfitting. Zero error.
 - Decision Tree X_train, X_test is producing worse than Linear Regression.
-- Random Forest produces best results. On Cross-validation and on test data best mean but std deviation is high.
+- Random Forest produces best results. On Cross-validation and on test data best mean and sted deviation.
 
  ## Acknowledgements
 
