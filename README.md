@@ -26,6 +26,17 @@ On Apple M3 MAX CPU and Apple Silicon Metal Performance Shaders (MPS) PyTorch AP
 After the virtual environment is created and activated, create the requirements.txt file.
 
 
+1. Parameters are used in the model. And are learned from the data and used to make predictions.
+2. Hyperparameters are used to train the model. Are set before the training and are not learned from the data. These are to be tuned.
+    - Learning rate
+    - Batch size
+    - Epochs
+    - Number of hidden layers
+    - Number of neurons in each hidden layer
+    - Activation function
+    - Loss function
+    - Regularization parameter: L1, L2
+
 ```shell
 pip3 freeze > requirements.txt
 
