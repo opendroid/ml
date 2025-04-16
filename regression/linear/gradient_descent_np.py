@@ -2,22 +2,23 @@ import numpy as np
 import time
 
 
-class GradientDescentNumpy:
-    """Creates a class for gradient descent. It uses numpy for matrix
+class GradientDescentBase:
+    """Creates a base class for gradient descent. It uses numpy for matrix
     operations.
     """
 
-    def __init__(self, learning_rate=0.01,
+    def __init__(self, alpha=0.01,
                  max_iter=1000,
-                 tolerance=1e-8,
-                 max_tolerance=1_000):
-        self.learning_rate = learning_rate
-        self.max_iter = max_iter
-        self.tolerance = tolerance
-        self.max_tolerance = max_tolerance
+                 tol=1e-8,
+                 max_tol=1_000,
+                 activation=None):
+        self.alpha = alpha  # Learning rate
+        self.max_iter = max_iter  # Maximum number of iterations
+        self.tol = tol  # Tolerance
+        self.max_tol = max_tol
         self.dtype = np.float32
         self.params = None
-        return
+        self.activation = activation  # Activation function
 
     def descent(self, X, y):
         """Calculate weitghts for linear regression model.
