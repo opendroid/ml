@@ -5,6 +5,8 @@ import time
 class BaseRegression:
     """Creates a base class for gradient descent. It uses numpy for matrix
     operations.
+
+    Note that it is a single feature regression model.
     """
 
     def __init__(self, alpha=0.01,
@@ -17,7 +19,8 @@ class BaseRegression:
         self.tol = tol  # Tolerance
         self.max_tol = max_tol
         self.dtype = np.float32
-        self.params = None
+        self.coef_ = None
+        self.intercept_ = None
         self.activation = activation  # Activation function
         self.training_time = 0
         self.prediction_time = 0
@@ -60,17 +63,17 @@ class BaseRegression:
         print(f"X: {X.shape}, y: {y.shape}")
         # Add a column of 1s to X for the intercept term, Shape: (m, n + 1)
         X_b = np.c_[np.ones(m, dtype=dtype), X]
-        self.params = np.zeros(n + 1, dtype=dtype)  # Shape: (n + 1,)
+        self.coef_ = np.zeros(n + 1, dtype=dtype)  # Shape: (n + 1,)
         iter_count, tolerance = 0, dtype('inf')
         for _ in range(self.max_iter):
             # for performance use this instead of (Y_predictions - y)
-            # Predictions: X_b (m, n + 1) @ params (n + 1,) -> (m,)
-            Y_predictions = X_b @ self.params
+            # Predictions: X_b (m, n + 1) @ coef_ (n + 1,) -> (m,)
+            Y_predictions = X_b @ self.coef_
+            Y_predictions = self.activation(Y_predictions)
             # Errors: both predictions and y are (m,), so result is (m,)
             errors = Y_predictions - y
-            # Correlation between features and errors
             # Gradient: X_b.T (n + 1, m) @ errors (m,) -> (n + 1,)
-            gradient = (1/m) * X_b.T @ errors
+            gradient = (1/m) * (X_b.T @ errors)
             # Note that actual delta is (sign is opposite)
             # (Y_predictions - y) * X_b * learning_rate
             delta = self.alpha * gradient  # Delta: scale gradient
@@ -84,12 +87,13 @@ class BaseRegression:
                 break
             # Update parameters by subtracting delta,
             # which is equivalent to adding -delta (see note above)
-            self.params -= delta
+            self.coef_ -= delta
             iter_count += 1
 
         self.training_time = time.perf_counter() - start_time
         self.training_iter = iter_count
         self.training_tolerance = tolerance
+        self.intercept_ = self.coef_[0]
         return self
 
     def predict(self, X):
@@ -107,23 +111,27 @@ class BaseRegression:
         m = X.shape[0]
         X = X.astype(dtype)
         X_b = np.c_[np.ones((m, 1), dtype=dtype), X]
-        predictions = self.activation(X_b @ self.params)
+        predictions = self.activation(X_b @ self.coef_)
+        predictions = predictions.reshape(-1, 1)
         self.prediction_time = time.perf_counter() - time_start
         return predictions
 
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
 class LogisticRegression(BaseRegression):
-    def __sigmoid(x):
-        return 1 / (1 + np.exp(-x))
-    def __init__(self, alpha=0.01, max_iter=1000, tol=1e-8, max_tol=1_000,
-                 activation=__sigmoid):
+    def __init__(self, alpha=0.001, max_iter=1000, tol=1e-8, max_tol=1_000_000,
+                 activation=sigmoid):
         super().__init__(alpha, max_iter, tol, max_tol, activation)
 
 
-class LinearRegression(BaseRegression):
-    def __identity(x):
-        return x
+def identity(x):
+    return x
 
-    def __init__(self, alpha=0.01, max_iter=1000, tol=1e-8, max_tol=1_000,
-                 activation=__identity):
+
+class LinearRegression(BaseRegression):
+    def __init__(self, alpha=0.001, max_iter=1000, tol=1e-8, max_tol=1_000_000,
+                 activation=identity):
         super().__init__(alpha, max_iter, tol, max_tol, activation)
