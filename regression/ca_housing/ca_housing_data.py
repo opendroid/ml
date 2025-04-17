@@ -4,7 +4,7 @@ import numpy as np
 
 class CAHousingData:
     def __init__(self):
-        self.data = pd.read_csv("../../data/housing-geron.csv")
+        self.data = pd.read_csv("./data/housing-geron.csv")
 
     def all(self):
         return self.data
