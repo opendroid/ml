@@ -18,7 +18,6 @@ class BaseRegression:
         self.max_iter = max_iter  # Maximum number of iterations
         self.tol = tol  # Tolerance
         self.max_tol = max_tol
-        self.dtype = np.float32
         self.coef_ = None
         self.intercept_ = None
         self.activation = activation  # Activation function
@@ -55,16 +54,14 @@ class BaseRegression:
         """
         start_time = time.perf_counter()
         m, n = X.shape
-        dtype = self.dtype
-        X = X.astype(dtype)
-        y = np.asarray(y, dtype=self.dtype).ravel()  # Flattens y to (m,)
+        y = np.asarray(y).ravel()  # Flattens y to (m,)
         if y.shape[0] != m:
             raise ValueError(f"y shape {y.shape} does not match X rows {m}")
-        print(f"X: {X.shape}, y: {y.shape}")
+
         # Add a column of 1s to X for the intercept term, Shape: (m, n + 1)
-        X_b = np.c_[np.ones(m, dtype=dtype), X]
-        self.coef_ = np.zeros(n + 1, dtype=dtype)  # Shape: (n + 1,)
-        iter_count, tolerance = 0, dtype('inf')
+        X_b = np.c_[np.ones(m), X]
+        self.coef_ = np.zeros(n + 1)  # Shape: (n + 1,)
+        iter_count, tolerance = 0, np.inf
         for _ in range(self.max_iter):
             # for performance use this instead of (Y_predictions - y)
             # Predictions: X_b (m, n + 1) @ coef_ (n + 1,) -> (m,)
@@ -100,38 +97,40 @@ class BaseRegression:
         """Predict using the linear regression model.
 
         Input:
-            X <= m x n matrix (m: features, n:training samples)
+            X <= m x n matrix (m: features, n:test samples)
 
         Output:
             predictions <= m x 1 vector (predicted targets)
             time_taken (float)
         """
         time_start = time.perf_counter()
-        dtype = self.dtype
         m = X.shape[0]
-        X = X.astype(dtype)
-        X_b = np.c_[np.ones((m, 1), dtype=dtype), X]
+        X_b = np.c_[np.ones((m, 1)), X]
         predictions = self.activation(X_b @ self.coef_)
         predictions = predictions.reshape(-1, 1)
         self.prediction_time = time.perf_counter() - time_start
         return predictions
 
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
 class LogisticRegression(BaseRegression):
-    def __init__(self, alpha=0.001, max_iter=1000, tol=1e-8, max_tol=1_000_000,
-                 activation=sigmoid):
-        super().__init__(alpha, max_iter, tol, max_tol, activation)
+    def _sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
 
+    def __init__(self, alpha=0.001, max_iter=1000,
+                 tol=1e-8, max_tol=1_000_000):
+        super().__init__(alpha, max_iter, tol, max_tol, self._sigmoid)
 
-def identity(x):
-    return x
+    def predict(self, X):
+        predictions = super().predict(X)
+        return (predictions > 0.5).astype(int)
 
 
 class LinearRegression(BaseRegression):
-    def __init__(self, alpha=0.001, max_iter=1000, tol=1e-8, max_tol=1_000_000,
-                 activation=identity):
-        super().__init__(alpha, max_iter, tol, max_tol, activation)
+    def _identity(self, x):
+        return x
+
+    def __init__(self, alpha=0.001, max_iter=1000,
+                 tol=1e-8, max_tol=1_000_000):
+        super().__init__(alpha, max_iter, tol,
+                         max_tol,
+                         activation=self._identity)
