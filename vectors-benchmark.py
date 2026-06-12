@@ -5,8 +5,8 @@ import random
 from device import device
 
 
-vector_size = 1000_000_000
-unit = "billion"
+vector_size = 1_000_000
+unit = "million"
 
 
 def setup_two_lists(size):

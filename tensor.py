@@ -1,5 +1,3 @@
-"""Examples for the PyTorch Tensors
-"""
 import torch
 from device import device
 

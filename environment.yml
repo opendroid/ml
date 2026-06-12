@@ -1,0 +1,27 @@
+name: mlx
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.12
+  - pip
+
+  # Data science
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - jupyterlab
+
+  # MLX ecosystem and AI tooling
+  - pip:
+      - mlx
+      - mlx-lm
+      - torch
+      - tensorflow
+      - transformers
+      - langchain
+      - langchain-ollama
+      
